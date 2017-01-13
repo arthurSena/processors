@@ -49,7 +49,7 @@ def get_normalized_phase(phase):
 
     if phase_suggested:
         logger.debug(
-            'Phase "%s" successfully normalized to \'%s\'',
+            'Phase \'%s\' successfully normalized to \'%s\'',
             phase, phase_suggested)
         return phase_suggested
     else:
