@@ -4,6 +4,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def write_fail_log(log):
+    f = open("/tmp/log_fail_pahse.txt", "a")
+    f.write(log)
+    f.close()
 
 def build_phase_variation_map(file):
     """
@@ -51,4 +55,6 @@ def get_normalized_phase(phase):
         logger.debug(
             'Unsuccessfully phase normalization "%s"',
             phase)
+        temp_log = 'Unsuccessfully phase normalization "%s"', phase
+        write_fail_log(temp_log)
         return phase

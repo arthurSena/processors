@@ -8,3 +8,4 @@ from . import processors
 from . import writers
 from . import helpers
 from . import readers
+from . import normalizers
