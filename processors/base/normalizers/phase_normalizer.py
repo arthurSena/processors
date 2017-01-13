@@ -12,7 +12,8 @@ def build_phase_variation_map(file):
         :param
             file (str): path to the phase variations file
         :return:
-            variation map (dict): dict that contains all normalized phases and their variations
+            variation map (dict): dict that contains all normalized phases and
+                                    their variations
     """
 
     variation_map = {}
@@ -35,11 +36,12 @@ def get_normalized_phase(phase):
     """
 
     if not phase:
-        logger.debug('Unsuccessfully phase normalization "None"')
+        logger.debug('Unsuccessfully phase normalization \'None\'')
         return phase
 
-    phase_variation_map = build_phase_variation_map(os.path.join(os.path.dirname(__file__),
-                                                 'phases_variations.psv'))
+    phase_variation_map = build_phase_variation_map\
+                        (os.path.join(os.path.dirname(__file__),
+                                      'phases_variations.psv'))
     phase_suggested = None
     for phase_normalized, phase_variations in phase_variation_map.items():
         if phase in phase_variations:
@@ -47,11 +49,11 @@ def get_normalized_phase(phase):
 
     if phase_suggested:
         logger.debug(
-            'Phase "%s" successfully normalized to "%s"',
+            'Phase "%s" successfully normalized to \'%s\'',
             phase, phase_suggested)
         return phase_suggested
     else:
         logger.debug(
-            'Unsuccessfully phase normalization "%s"',
+            'Unsuccessfully phase normalization \'%s\'',
             phase)
         return phase
