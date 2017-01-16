@@ -15,16 +15,18 @@ def build_phase_variation_map(file):
             variation map (dict): dict that contains all normalized phases and
                                     their variations
     """
-
     variation_map = {}
     with open(file, 'r') as variations:
-        reader = csv.reader(variations, delimiter='|')
+        reader = csv.reader(variations, quotechar='"', delimiter=',')
         for line in reader:
-            variation_map[line[0]] = map(lambda v: v.strip(), line)
+            variation, target = line[0], line[1]
+            if target in variation_map.keys():
+                variation_map[target].append(variation)
+            else:
+                variation_map[target] = [target, variation]
     return variation_map
 
 def get_normalized_phase(phase):
-
     """ Receives a phase as an input and normalizes it if possible.
         Else, returns the unormalized phase.
 
@@ -34,11 +36,9 @@ def get_normalized_phase(phase):
         :return
             phase_suggested (str): normalized phase
     """
-
     if not phase:
         logger.debug('Unsuccessfully phase normalization \'None\'')
         return phase
-
     phase_variation_map = build_phase_variation_map\
                         (os.path.join(os.path.dirname(__file__),
                                       'phases_variations.psv'))
@@ -46,7 +46,6 @@ def get_normalized_phase(phase):
     for phase_normalized, phase_variations in phase_variation_map.items():
         if phase in phase_variations:
             phase_suggested = phase_normalized
-
     if phase_suggested:
         logger.debug(
             'Phase \'%s\' successfully normalized to \'%s\'',
