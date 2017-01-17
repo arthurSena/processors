@@ -14,7 +14,8 @@ CREATE TABLE sources (
 	source_url TEXT, 
 	terms_and_conditions_url TEXT, 
 	CONSTRAINT sources_pkey PRIMARY KEY (id), 
-	CONSTRAINT sources_name_type_unique UNIQUE (name, type)
+	CONSTRAINT sources_name_type_unique UNIQUE (name, type), 
+	CONSTRAINT sources_type_check CHECK (type = ANY (ARRAY['register'::text, 'other'::text]))
 );
 CREATE TABLE knex_migrations_lock (
 	is_locked INTEGER
@@ -61,7 +62,8 @@ CREATE TABLE locations (
 	CONSTRAINT locations_pkey PRIMARY KEY (id), 
 	CONSTRAINT locations_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE, 
 	CONSTRAINT locations_slug_unique UNIQUE (slug), 
-	CONSTRAINT locations_name_type_unique UNIQUE (name, type)
+	CONSTRAINT locations_name_type_unique UNIQUE (name, type), 
+	CONSTRAINT locations_type_check CHECK (type = ANY (ARRAY['country'::text, 'city'::text, 'other'::text]))
 );
 CREATE TABLE trials (
 	id UUID NOT NULL, 
@@ -77,7 +79,7 @@ CREATE TABLE trials (
 	first_enrollment_date DATE, 
 	study_type TEXT, 
 	study_design TEXT, 
-	study_phase TEXT, 
+	study_phase JSONB, 
 	primary_outcomes JSONB, 
 	secondary_outcomes JSONB, 
 	created_at TIMESTAMP WITH TIME ZONE, 
@@ -89,7 +91,10 @@ CREATE TABLE trials (
 	completion_date DATE, 
 	results_exemption_date DATE, 
 	CONSTRAINT trials_pkey PRIMARY KEY (id), 
-	CONSTRAINT trials_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE
+	CONSTRAINT trials_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE, 
+	CONSTRAINT trials_gender_check CHECK (gender = ANY (ARRAY['both'::text, 'male'::text, 'female'::text])), 
+	CONSTRAINT trials_status_check CHECK (status = ANY (ARRAY['ongoing'::text, 'withdrawn'::text, 'suspended'::text, 'terminated'::text, 'complete'::text, 'other'::text])), 
+	CONSTRAINT trials_recruitment_status_check CHECK (recruitment_status = ANY (ARRAY['recruiting'::text, 'not_recruiting'::text, 'unknown'::text, 'other'::text]))
 );
 CREATE TABLE conditions (
 	id UUID NOT NULL, 
@@ -144,7 +149,8 @@ CREATE TABLE trials_persons (
 	role TEXT, 
 	CONSTRAINT trials_persons_pkey PRIMARY KEY (trial_id, person_id), 
 	CONSTRAINT trials_persons_person_id_foreign FOREIGN KEY(person_id) REFERENCES persons (id), 
-	CONSTRAINT trials_persons_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE
+	CONSTRAINT trials_persons_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE, 
+	CONSTRAINT trials_persons_role_check CHECK (role = ANY (ARRAY['principal_investigator'::text, 'public_queries'::text, 'scientific_queries'::text, 'other'::text]))
 );
 CREATE TABLE trials_locations (
 	trial_id UUID NOT NULL, 
@@ -152,7 +158,8 @@ CREATE TABLE trials_locations (
 	role TEXT, 
 	CONSTRAINT trials_locations_pkey PRIMARY KEY (trial_id, location_id), 
 	CONSTRAINT trials_locations_location_id_foreign FOREIGN KEY(location_id) REFERENCES locations (id), 
-	CONSTRAINT trials_locations_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE
+	CONSTRAINT trials_locations_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE, 
+	CONSTRAINT trials_locations_role_check CHECK (role = ANY (ARRAY['recruitment_countries'::text, 'other'::text]))
 );
 CREATE TABLE trials_conditions (
 	trial_id UUID NOT NULL, 
@@ -216,7 +223,10 @@ CREATE TABLE records (
 	CONSTRAINT trialrecords_pkey PRIMARY KEY (id), 
 	CONSTRAINT trialrecords_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE, 
 	CONSTRAINT trialrecords_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id), 
-	CONSTRAINT records_source_url_unique UNIQUE (source_url)
+	CONSTRAINT records_source_url_unique UNIQUE (source_url), 
+	CONSTRAINT trialrecords_gender_check CHECK (gender = ANY (ARRAY['both'::text, 'male'::text, 'female'::text])), 
+	CONSTRAINT records_status_check CHECK (status = ANY (ARRAY['ongoing'::text, 'withdrawn'::text, 'suspended'::text, 'terminated'::text, 'complete'::text, 'other'::text])), 
+	CONSTRAINT records_recruitment_status_check CHECK (recruitment_status = ANY (ARRAY['recruiting'::text, 'not_recruiting'::text, 'unknown'::text, 'other'::text]))
 );
 CREATE INDEX trialrecords_trial_id_index ON records (trial_id);
 CREATE INDEX records_identifiers_index ON records USING gin (identifiers);
@@ -226,7 +236,8 @@ CREATE TABLE trials_organisations (
 	role TEXT, 
 	CONSTRAINT trials_organisations_pkey PRIMARY KEY (trial_id, organisation_id), 
 	CONSTRAINT trials_organisations_organisation_id_foreign FOREIGN KEY(organisation_id) REFERENCES organisations (id), 
-	CONSTRAINT trials_organisations_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE
+	CONSTRAINT trials_organisations_trial_id_foreign FOREIGN KEY(trial_id) REFERENCES trials (id) ON DELETE CASCADE, 
+	CONSTRAINT trials_organisations_role_check CHECK (role = ANY (ARRAY['primary_sponsor'::text, 'sponsor'::text, 'funder'::text, 'other'::text]))
 );
 CREATE TABLE interventions (
 	id UUID NOT NULL, 
@@ -244,7 +255,8 @@ CREATE TABLE interventions (
 	CONSTRAINT interventions_fda_application_id_foreign FOREIGN KEY(fda_application_id) REFERENCES fda_applications (id) ON UPDATE CASCADE, 
 	CONSTRAINT interventions_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE, 
 	CONSTRAINT interventions_name_type_unique UNIQUE (name, type), 
-	CONSTRAINT interventions_slug_unique UNIQUE (slug)
+	CONSTRAINT interventions_slug_unique UNIQUE (slug), 
+	CONSTRAINT interventions_type_check CHECK (type = ANY (ARRAY['drug'::text, 'procedure'::text, 'other'::text]))
 );
 CREATE INDEX interventions_fda_application_number_index ON interventions (fda_application_id);
 CREATE TABLE risk_of_biases_risk_of_bias_criterias (
@@ -253,7 +265,8 @@ CREATE TABLE risk_of_biases_risk_of_bias_criterias (
 	value TEXT NOT NULL, 
 	CONSTRAINT risk_of_biases_risk_of_bias_criterias_pkey PRIMARY KEY (risk_of_bias_id, risk_of_bias_criteria_id), 
 	CONSTRAINT risk_of_biases_risk_of_bias_criterias_risk_of_bias_criteria_id_ FOREIGN KEY(risk_of_bias_criteria_id) REFERENCES risk_of_bias_criterias (id), 
-	CONSTRAINT risk_of_biases_risk_of_bias_criterias_risk_of_bias_id_foreign FOREIGN KEY(risk_of_bias_id) REFERENCES risk_of_biases (id)
+	CONSTRAINT risk_of_biases_risk_of_bias_criterias_risk_of_bias_id_foreign FOREIGN KEY(risk_of_bias_id) REFERENCES risk_of_biases (id), 
+	CONSTRAINT risk_of_biases_risk_of_bias_criterias_value_check CHECK (value = ANY (ARRAY['yes'::text, 'no'::text, 'unknown'::text]))
 );
 CREATE TABLE fda_approvals (
 	id TEXT NOT NULL, 
@@ -281,7 +294,9 @@ CREATE TABLE documents (
 	CONSTRAINT documents_fda_approval_id_foreign FOREIGN KEY(fda_approval_id) REFERENCES fda_approvals (id), 
 	CONSTRAINT documents_file_id_foreign FOREIGN KEY(file_id) REFERENCES files (id), 
 	CONSTRAINT documents_source_id_foreign FOREIGN KEY(source_id) REFERENCES sources (id) ON UPDATE CASCADE, 
-	CONSTRAINT documents_fda_approval_id_file_id_name_unique UNIQUE (fda_approval_id, file_id, name)
+	CONSTRAINT documents_fda_approval_id_file_id_name_unique UNIQUE (fda_approval_id, file_id, name), 
+	CONSTRAINT documents_type_check CHECK (type = ANY (ARRAY['csr'::text, 'csr_synopsis'::text, 'epar_segment'::text, 'blank_consent_form'::text, 'patient_information_sheet'::text, 'blank_case_report_form'::text, 'results'::text, 'other'::text])), 
+	CONSTRAINT file_id_xor_source_url_check CHECK (((file_id IS NULL) AND (url IS NOT NULL)) OR ((file_id IS NOT NULL) AND (url IS NULL)))
 );
 CREATE UNIQUE INDEX non_fda_documents_type_source_url_unique ON documents (type, source_url);
 CREATE UNIQUE INDEX non_fda_documents_type_file_id_unique ON documents (type, file_id);
