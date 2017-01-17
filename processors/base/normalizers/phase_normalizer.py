@@ -1,7 +1,6 @@
 import os
 import csv
 import logging
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ def build_phase_variation_map(file):
     """
     variation_map = {}
     with open(file, 'r') as variations:
-        reader = csv.reader(variations, quotechar='"', delimiter=',')
+        reader = csv.reader(variations, quotechar='\'', delimiter=',')
         for line in reader:
             variation, target = line[0], line[1]
             if target in variation_map.keys():
@@ -26,22 +25,6 @@ def build_phase_variation_map(file):
             else:
                 variation_map[target] = [target, variation]
     return variation_map
-
-def array_to_json(phases_list):
-    """ Receives a list containing normalized phases of an study
-        and returns its json representation as a string.
-
-        :param:
-            phases_array (list): normalized phases
-
-        :return:
-            normalized_json (str): json containing phase normalization
-
-    """
-    study_phases = {}
-    study_phases["Phases"] = phases_array
-    normalized_json = json.dumps(study_phases)
-    return normalized_json
 
 def get_normalized_phase(phase):
     """ Receives a phase as an input and normalizes it if possible.
@@ -51,7 +34,7 @@ def get_normalized_phase(phase):
             phase (str): unormalized phase
 
         :return:
-            phase_suggestions (str): normalized phase suggestions
+            phase_suggestions (list): normalized phase suggestions
     """
     if not phase:
         logger.debug('Unsuccessfully phase normalization \'None\'')
@@ -67,9 +50,9 @@ def get_normalized_phase(phase):
         logger.debug(
             'Phase \'%s\' successfully normalized to \'%s\'',
             phase, phase_suggestions)
-        return array_to_json(phase_suggestions)
+        return phase_suggestions
     else:
         logger.debug(
             'Unsuccessfully phase normalization \'%s\'',
             phase)
-        return array_to_json(phase)
+        return [phase]
