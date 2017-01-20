@@ -1,3 +1,14 @@
+CREATE TABLE cochrane_reviews (
+	id SERIAL NOT NULL, 
+	study_id TEXT, 
+	refs TEXT, 
+	study_type TEXT, 
+	file_name TEXT, 
+	meta_source TEXT, 
+	robs TEXT, 
+	doi_id TEXT, 
+	CONSTRAINT cochrane_reviews_pkey PRIMARY KEY (id)
+);
 CREATE TABLE knex_migrations (
 	id SERIAL NOT NULL, 
 	name VARCHAR(255), 
@@ -30,6 +41,20 @@ CREATE TABLE files (
 	CONSTRAINT files_documentcloud_id_unique UNIQUE (documentcloud_id), 
 	CONSTRAINT files_sha1_unique UNIQUE (sha1), 
 	CONSTRAINT files_source_url_unique UNIQUE (source_url)
+);
+CREATE TABLE nct (
+	id SERIAL NOT NULL, 
+	meta_created TEXT, 
+	firstreceived_date TEXT, 
+	eligibility TEXT, 
+	secondary_outcomes TEXT, 
+	meta_source TEXT, 
+	results_exemption_date TEXT, 
+	completion_date_actual TEXT, 
+	primary_outcomes TEXT, 
+	secondary_ids TEXT, 
+	clinical_results BOOLEAN, 
+	CONSTRAINT nct_pkey PRIMARY KEY (id)
 );
 CREATE TABLE risk_of_bias_criterias (
 	id UUID NOT NULL, 
@@ -79,7 +104,7 @@ CREATE TABLE trials (
 	first_enrollment_date DATE, 
 	study_type TEXT, 
 	study_design TEXT, 
-	study_phase JSONB, 
+	study_phase TEXT[], 
 	primary_outcomes JSONB, 
 	secondary_outcomes JSONB, 
 	created_at TIMESTAMP WITH TIME ZONE, 

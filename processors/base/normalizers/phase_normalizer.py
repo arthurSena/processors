@@ -1,30 +1,13 @@
 import os
-import csv
+import json
 import logging
+
+from ..helpers import clean_string
 
 logger = logging.getLogger(__name__)
 
-def build_phase_variation_map(file):
-    """
-        Receives a path as an input and returns a dict containing
-        all normalized phases and their variations
-
-        :param
-            file (str): path to the phase variations file
-        :return:
-            variation map (dict): dict that contains all normalized phases and
-                                    their variations
-    """
-    variation_map = {}
-    with open(file, 'r') as variations:
-        reader = csv.reader(variations, quotechar='\'', delimiter=',')
-        for line in reader:
-            variation, target = line[0], line[1]
-            if target in variation_map.keys():
-                variation_map[target].append(variation)
-            else:
-                variation_map[target] = [target, variation]
-    return variation_map
+PHASE_VARIATION_PATH = os.path.join(os.path.dirname(__file__),
+                                    'phases_variations.json')
 
 def get_normalized_phase(phase):
     """ Receives a phase as an input and normalizes it if possible.
@@ -36,23 +19,16 @@ def get_normalized_phase(phase):
         :return:
             phase_suggestions (list): normalized phase suggestions
     """
-    if not phase:
-        logger.debug('Unsuccessfully phase normalization \'None\'')
-        return phase
-    phase_variation_map = build_phase_variation_map\
-                        (os.path.join(os.path.dirname(__file__),
-                                      'phases_variations.csv'))
-    phase_suggestions = []
-    for phase_normalized, phase_variations in phase_variation_map.items():
-        if phase in phase_variations:
-            phase_suggestions.append(phase_normalized)
-    if phase_suggestions:
-        logger.debug(
-            'Phase \'%s\' successfully normalized to \'%s\'',
-            phase, phase_suggestions)
-        return phase_suggestions
+
+    with open(PHASE_VARIATION_PATH) as phase_variation_file:
+        phase_variation_map = json.load(phase_variation_file)
+
+    if phase in phase_variation_map.keys():
+        phase_suggestions = phase_variation_map[phase]
     else:
-        logger.debug(
-            'Unsuccessfully phase normalization \'%s\'',
-            phase)
-        return [phase]
+        logger.debug('Unable to normalize phase \'%s\'', phase)
+        if phase is None:
+            phase_suggestions = phase
+        else:
+            phase_suggestions = [phase]
+    return phase_suggestions
