@@ -28,7 +28,7 @@ class TestValidateRemoteURL(object):
             ('Pilot study', ['Other']),
             ('Diagnostic New Technique Clincal Study', ['Other']),
             (None, None),
-            ('', ['']),
+            ('', None),
             ('()', ['()']),
             ('[]', ['[]']),
             # This test case is not in the json variations file
