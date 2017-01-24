@@ -59,7 +59,7 @@ def extract_trial(record):
     if record['protocol_id']:
         has_published_results = True
 
-    #Get study_phase
+    # Get study_phase
     study_phase = base.normalizers.get_normalized_phase(record['phase'])
 
     trial = {

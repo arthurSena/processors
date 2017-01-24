@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 PHASE_VARIATION_PATH = os.path.join(os.path.dirname(__file__),
                                     'phases_variations.json')
 
+
 def get_normalized_phase(phase):
     """ Receives a phase as an input and normalizes it if possible.
         Else, returns the unormalized phase.

@@ -8,6 +8,7 @@ from .. import base
 
 # Module API
 
+
 def extract_source(record):
     source = {
         'id': 'actrn',
@@ -67,7 +68,7 @@ def extract_trial(record):
     # Get has_published_results
     has_published_results = None
 
-    #Get study phase
+    # Get study phase
     study_phase = base.normalizers.get_normalized_phase(record['phase'])
 
     trial = {

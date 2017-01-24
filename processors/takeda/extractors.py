@@ -59,7 +59,7 @@ def extract_trial(record):
     if record['download_the_clinical_trial_summary']:
         has_published_results = True
 
-    #Get study phase
+    # Get study phase
     study_phase = base.normalizers.get_normalized_phase(record['trial_phase'])
 
     trial = {
