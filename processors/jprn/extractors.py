@@ -66,6 +66,9 @@ def extract_trial(record):
     # Get study phase
     study_phase = base.normalizers.get_normalized_phase(record['developmental_phase'])
 
+    # Get age_range
+    age_range = extract_age_range(record)
+
     trial = {
         'identifiers': identifiers,
         'registration_date': record['date_of_registration'],
@@ -87,6 +90,7 @@ def extract_trial(record):
         'primary_outcomes': record['primary_outcomes'],
         'secondary_outcomes': record['key_secondary_outcomes'],
         'gender': gender,
+        'age_range': age_range,
         'has_published_results': has_published_results,
     }
     return trial
@@ -160,3 +164,17 @@ def extract_document_category(record):
         'name': 'Clinical study report',
         'group': 'Results',
     }
+
+def extract_age_range(record):
+    clean = lambda x: x.replace('<', '').replace('>', '').replace('=', '')
+    if 'Not applicable' in record['agelower_limit']:
+        minimum_age = 'N/A'
+    else:
+        minimum_age = clean(record['agelower_limit'])
+
+    if 'Not applicable' in record['ageupper_limit']:
+        maximum_age = 'N/A'
+    else:
+        maximum_age = clean(record['ageupper_limit'])
+    return {'minimum_age': minimum_age, 'maximum_age': maximum_age}
+
