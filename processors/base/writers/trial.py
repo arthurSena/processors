@@ -98,6 +98,7 @@ def write_trial(conn, trial, source_id, record_id):
             'primary_outcomes': trial.get('primary_outcomes', None),
             'secondary_outcomes': trial.get('primary_outcomes', None),
             'gender': trial.get('gender', None),
+            'age_range': trial.get('age_range', None),
             'has_published_results': trial.get('has_published_results', None),
             'results_exemption_date': trial.get('results_exemption_date'),
         })

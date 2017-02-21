@@ -73,8 +73,12 @@ def extract_trial(record):
     if target_sample_size is None:
         target_sample_size = record.get('enrollment_actual')
 
-    # Get study phase
+    # Get study_phase
     study_phase = base.normalizers.get_normalized_phase(record['phase'])
+
+    # Get age range
+    age_range = {'maximum_age': record['eligibility_criteria']['maximum_age'],
+                 'minimum_age': record['eligibility_criteria']['minimum_age']}
 
     trial = {
         'identifiers': identifiers,
@@ -96,6 +100,7 @@ def extract_trial(record):
         'primary_outcomes': record['primary_outcomes'],
         'secondary_outcomes': record['secondary_outcomes'],
         'gender': gender,
+        'age_range': age_range,
         'has_published_results': has_published_results,
         'results_exemption_date': record['results_exemption_date'],
     }
