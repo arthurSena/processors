@@ -330,6 +330,7 @@ def get_canonical_location_name(location):
 
     return current_match
 
+
 def format_age(age):
     """Formats an age to follow a pattern of
     hours,days,weeks,months and years.
@@ -338,16 +339,21 @@ def format_age(age):
         age (str): An age from a trial subject
 
     """
-    formatter = lambda x: x.strip().lower().replace('years','Year(s)')\
-        .replace('year', 'Year(s)') \
-        .replace('months', 'Month(s)') \
-        .replace('month', 'Month(s)') \
-        .replace('weeks', 'Week(s)') \
-        .replace('week', 'Week(s)') \
-        .replace('days', 'Day(s)') \
-        .replace('day', 'Day(s)') \
-        .replace('hours', 'Hour(s)') \
-        .replace('hour', 'Hour(s)')\
-        .replace('n/a', 'N/A')
 
-    return formatter(age)
+    if not age:
+        return 'N/A'
+
+    def format(string):
+        return string.strip().lower().replace('years', 'Year(s)') \
+            .replace('year', 'Year(s)') \
+            .replace('months', 'Month(s)') \
+            .replace('month', 'Month(s)') \
+            .replace('weeks', 'Week(s)') \
+            .replace('week', 'Week(s)') \
+            .replace('days', 'Day(s)') \
+            .replace('day', 'Day(s)') \
+            .replace('hours', 'Hour(s)') \
+            .replace('hour', 'Hour(s)') \
+            .replace('n/a', 'N/A')
+
+    return format(age)

@@ -140,18 +140,32 @@ def extract_persons(record):
         })
     return persons
 
+
 def extract_age_range(record):
+
+    def clean(a_string):
+
+        return ' '.join(a_string.strip().replace('\r', '').split())
+
+    def format_age(age):
+
+        return base.helpers.format_age(age) \
+            .replace('no limit', 'Not Limited') \
+            .replace('not stated', 'N/A')
 
     maximum_age = record['maximum_age']
     minimum_age = record['minimum_age']
 
-    cleaner = lambda x: ' '.join(x.strip().replace('\r','').split())
+    if not maximum_age or 'n/a' in maximum_age.lower():
+        maximum_age = 'N/A'
 
-    additional_formatter = lambda x: base.helpers.format_age(x)\
-        .replace('no limit','Not Limited')\
-        .replace('not stated', 'N/A')
+    if not minimum_age or 'n/a' in minimum_age.lower():
+        minimum_age = 'N/A'
 
-    maximum_age = additional_formatter(cleaner(maximum_age))
-    minimum_age = additional_formatter(cleaner(minimum_age))
+    maximum_age = clean(maximum_age)
+    minimum_age = clean(minimum_age)
 
-    return {'maximum_age':maximum_age, 'minimum_age':minimum_age}
+    maximum_age = format_age(maximum_age)
+    minimum_age = format_age(minimum_age)
+
+    return {'maximum_age': maximum_age, 'minimum_age': minimum_age}

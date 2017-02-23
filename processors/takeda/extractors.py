@@ -146,27 +146,33 @@ def extract_document_category(record):
         'group': 'Results',
     }
 
+
 def extract_age_range(record):
 
     age_info = record['ages']
 
-    cleaner = lambda x: ' '.join(x.lower().replace('up to', '').replace('and up', '').split())
+    def clean(string):
+        return ' '.join(string.lower().replace('up to', '').replace('and up', '').split())
 
-    if 'and up' in age_info.lower():
-        minimum_age = cleaner(age_info)
+    if not age_info:
+        maximum_age = 'N/A'
+        minimum_age = 'N/A'
+
+    elif 'and up' in age_info.lower():
+        minimum_age = clean(age_info)
         minimum_age = base.helpers.format_age(minimum_age)
         maximum_age = 'N/A'
 
     elif 'up to' in age_info.lower():
         minimum_age = 'N/A'
-        maximum_age = cleaner(age_info)
+        maximum_age = clean(age_info)
         maximum_age = base.helpers.format_age(maximum_age)
 
     else:
-        minimum_age,maximum_age = age_info.split('-')
+        minimum_age, maximum_age = age_info.split('-')
 
-        minimum_age = cleaner(minimum_age)
-        maximum_age = cleaner(maximum_age)
+        minimum_age = clean(minimum_age)
+        maximum_age = clean(maximum_age)
 
         minimum_age = base.helpers.format_age(minimum_age)
         maximum_age = base.helpers.format_age(maximum_age)

@@ -99,22 +99,28 @@ def extract_persons(record):
     persons = []
     return persons
 
+
 def extract_age_range(record):
+
+    def clean(a_string):
+        return ' '.join(a_string.lower()
+                        .replace('and older', '').split())
 
     age_info = record['age_range']
 
-    cleaner = lambda x: ' '.join(x.lower().replace('and older', '').split())
+    if not age_info:
+        return {'minimum_age': 'N/A', 'maximum_age': 'N/A'}
 
     if 'and older' in age_info.lower():
-        minimum_age = cleaner(age_info)
+        minimum_age = clean(age_info)
         minimum_age = base.helpers.format_age(minimum_age)
         maximum_age = 'N/A'
 
     else:
         minimum_age, maximum_age = age_info.split('-')
 
-        minimum_age = cleaner(minimum_age)
-        maximum_age = cleaner(maximum_age)
+        minimum_age = clean(minimum_age)
+        maximum_age = clean(maximum_age)
 
         minimum_age = base.helpers.format_age(minimum_age)
         maximum_age = base.helpers.format_age(maximum_age)

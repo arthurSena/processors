@@ -182,11 +182,16 @@ def extract_document_category(record):
         'group': 'Results',
     }
 
+
 def extract_age_range(record):
 
-    maximum_age = record['eligibility_criteria']['maximum_age']
-    minimum_age = record['eligibility_criteria']['minimum_age']
+    age_info = record.get('eligibility')
 
+    if not age_info:
+        return {'minimum_age': 'N/A', 'maximum_age': 'N/A'}
+
+    maximum_age = age_info.get('maximum_age')
+    minimum_age = age_info.get('minimum_age')
 
     maximum_age = base.helpers.format_age(maximum_age)
     minimum_age = base.helpers.format_age(minimum_age)
