@@ -68,8 +68,11 @@ def extract_trial(record):
     # Get has_published_results
     has_published_results = None
 
-    # Get study phase
+    # Get study_phase
     study_phase = base.normalizers.get_normalized_phase(record['phase'])
+
+    # Get age_range
+    age_range = extract_age_range(record)
 
     trial = {
         'identifiers': identifiers,
@@ -84,6 +87,7 @@ def extract_trial(record):
             'inclusion': record['key_inclusion_criteria'],
             'exclusion': record['key_exclusion_criteria'],
         },
+        'age_range': age_range,
         'target_sample_size': record['target_sample_size'],
         'first_enrollment_date': record['anticipated_date_of_first_participant_enrolment'],
         'study_type': record['study_type'],
@@ -135,3 +139,19 @@ def extract_persons(record):
             'trial_role': role,
         })
     return persons
+
+def extract_age_range(record):
+
+    maximum_age = record['maximum_age']
+    minimum_age = record['minimum_age']
+
+    cleaner = lambda x: ' '.join(x.strip().replace('\r','').replace('\n', '').split())
+
+    additional_formatter = lambda x: base.helpers.format_age(x)\
+        .replace('no limit','Not Limited')\
+        .replace('not stated', 'N/A')
+
+    maximum_age = additional_formatter(cleaner(maximum_age))
+    minimum_age = additional_formatter(cleaner(minimum_age))
+
+    return {'maximum_age':maximum_age, 'minimum_age':minimum_age}

@@ -6,6 +6,8 @@ from __future__ import unicode_literals
 
 from .. import base
 
+import re
+
 
 # Module API
 
@@ -146,10 +148,15 @@ def extract_age_range(record):
     minimum_age = record['minimum_age']
     maximum_age = record['maximum_age']
 
+    cleaner = lambda x: 'N/A'
+
     if not minimum_age or 'N/A' in minimum_age:
-        minimum_age = 'N/A'
+        minimum_age = cleaner(minimum_age)
 
     if not maximum_age or 'N/A' in maximum_age:
-        maximum_age = 'N/A'
+        maximum_age = cleaner(maximum_age)
+
+    maximum_age = base.helpers.format_age(maximum_age)
+    minimum_age = base.helpers.format_age(minimum_age)
 
     return {'minimum_age': minimum_age, 'maximum_age': maximum_age}

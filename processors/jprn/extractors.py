@@ -166,15 +166,58 @@ def extract_document_category(record):
     }
 
 def extract_age_range(record):
-    clean = lambda x: x.replace('<', '').replace('>', '').replace('=', '')
-    if 'Not applicable' in record['agelower_limit']:
-        minimum_age = 'N/A'
-    else:
-        minimum_age = clean(record['agelower_limit'])
 
-    if 'Not applicable' in record['ageupper_limit']:
+    def extract_first_number(string_with_int):
+
+        numbers = [int(s) for s in string_with_int.split() if s.isdigit()]
+
+        return numbers[0]
+
+    def correct_age_value(age_string):
+
+        if not '=' in age_string:
+
+            if '<' in age_string:
+
+                age = extract_first_number(age_string)
+                corrected_age = int(age) - 1
+                corrected_age = str(corrected_age)
+
+                age_string.replace(age, corrected_age)
+
+            elif '>' in age_string:
+
+                age = extract_first_number(age_string)
+                corrected_age = int(age) + 1
+                corrected_age = str(corrected_age)
+
+                age_string.replace(age, corrected_age)
+
+        return age_string
+
+    maximum_age = record['ageupper_limit']
+    minimum_age = record['agelower_limit']
+
+    cleaner = lambda x: x.replace('<', '')\
+        .replace('>', '')\
+        .replace('=', '')\
+        .replace('-old', '')\
+        .replace('\n', ' ')
+
+    if 'Not applicable' in maximum_age:
         maximum_age = 'N/A'
     else:
-        maximum_age = clean(record['ageupper_limit'])
+        maximum_age = correct_age_value(maximum_age)
+        maximum_age = cleaner(maximum_age)
+        maximum_age = base.helpers.format_age(maximum_age)
+
+    if 'Not applicable' in minimum_age:
+        minimum_age = 'N/A'
+    else:
+        minimum_age = correct_age_value(minimum_age)
+        minimum_age = cleaner(minimum_age)
+        minimum_age = base.helpers.format_age(minimum_age)
+
     return {'minimum_age': minimum_age, 'maximum_age': maximum_age}
+
 
