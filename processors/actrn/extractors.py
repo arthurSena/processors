@@ -145,7 +145,7 @@ def extract_age_range(record):
     maximum_age = record['maximum_age']
     minimum_age = record['minimum_age']
 
-    cleaner = lambda x: ' '.join(x.strip().replace('\r','').replace('\n', '').split())
+    cleaner = lambda x: ' '.join(x.strip().replace('\r','').split())
 
     additional_formatter = lambda x: base.helpers.format_age(x)\
         .replace('no limit','Not Limited')\

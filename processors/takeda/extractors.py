@@ -59,8 +59,11 @@ def extract_trial(record):
     if record['download_the_clinical_trial_summary']:
         has_published_results = True
 
-    # Get study phase
+    # Get study_phase
     study_phase = base.normalizers.get_normalized_phase(record['trial_phase'])
+
+    # Get age_range
+    age_range = extract_age_range(record)
 
     trial = {
         'identifiers': identifiers,
@@ -76,6 +79,7 @@ def extract_trial(record):
         'study_design': record['trial_design'],
         'study_phase': study_phase,
         'gender': gender,
+        'age_range': age_range,
         'has_published_results': has_published_results,
     }
     return trial
@@ -141,3 +145,30 @@ def extract_document_category(record):
         'name': 'Clinical study report synopsis',
         'group': 'Results',
     }
+
+def extract_age_range(record):
+
+    age_info = record['ages']
+
+    cleaner = lambda x: ' '.join(x.lower().replace('up to', '').replace('and up', '').split())
+
+    if 'and up' in age_info.lower():
+        minimum_age = cleaner(age_info)
+        minimum_age = base.helpers.format_age(minimum_age)
+        maximum_age = 'N/A'
+
+    elif 'up to' in age_info.lower():
+        minimum_age = 'N/A'
+        maximum_age = cleaner(age_info)
+        maximum_age = base.helpers.format_age(maximum_age)
+
+    else:
+        minimum_age,maximum_age = age_info.split('-')
+
+        minimum_age = cleaner(minimum_age)
+        maximum_age = cleaner(maximum_age)
+
+        minimum_age = base.helpers.format_age(minimum_age)
+        maximum_age = base.helpers.format_age(maximum_age)
+
+    return {'maximum_age': maximum_age, 'minimum_age': minimum_age}
