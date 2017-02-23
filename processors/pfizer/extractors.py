@@ -57,6 +57,9 @@ def extract_trial(record):
     # Get has_published_results
     has_published_results = None
 
+    # Get age_range
+    age_range = extract_age_range(record)
+
     trial = {
         'identifiers': identifiers,
         'public_title': public_title,
@@ -66,6 +69,7 @@ def extract_trial(record):
         'first_enrollment_date': record['study_start_date'],
         'study_type': record['study_type'],
         'gender': gender,
+        'age_range': age_range,
         'has_published_results': has_published_results,
     }
     return trial
@@ -94,3 +98,25 @@ def extract_organisations(record):
 def extract_persons(record):
     persons = []
     return persons
+
+def extract_age_range(record):
+
+    age_info = record['age_range']
+
+    cleaner = lambda x: ' '.join(x.lower().replace('and older', '').split())
+
+    if 'and older' in age_info.lower():
+        minimum_age = cleaner(age_info)
+        minimum_age = base.helpers.format_age(minimum_age)
+        maximum_age = 'N/A'
+
+    else:
+        minimum_age, maximum_age = age_info.split('-')
+
+        minimum_age = cleaner(minimum_age)
+        maximum_age = cleaner(maximum_age)
+
+        minimum_age = base.helpers.format_age(minimum_age)
+        maximum_age = base.helpers.format_age(maximum_age)
+
+    return {'maximum_age': maximum_age, 'minimum_age': minimum_age}
