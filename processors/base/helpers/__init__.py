@@ -356,7 +356,7 @@ def format_age(age):
     if not age:
         return 'N/A'
 
-    for age_variation, age_pattern in to_replace:
+    for age_variation, age_pattern in to_replace.iteritems():
         age.replace(age_variation, age_pattern)
 
     return age
