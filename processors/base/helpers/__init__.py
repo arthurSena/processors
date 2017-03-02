@@ -340,20 +340,23 @@ def format_age(age):
 
     """
 
+    to_replace = {'years': 'Year(s)',
+                  'year': 'Year(s)',
+                  'months': 'Month(s)',
+                  'month': 'Month(s)',
+                  'weeks': 'Week(s)',
+                  'week': 'Week(s)',
+                  'days': 'Day(s)',
+                  'day': 'Day(s)',
+                  'hours': 'Hour(s)',
+                  'hour': 'Hour(s)',
+                  'n/a': 'N/A'
+                  }
+
     if not age:
         return 'N/A'
 
-    def format(string):
-        return string.strip().lower().replace('years', 'Year(s)') \
-            .replace('year', 'Year(s)') \
-            .replace('months', 'Month(s)') \
-            .replace('month', 'Month(s)') \
-            .replace('weeks', 'Week(s)') \
-            .replace('week', 'Week(s)') \
-            .replace('days', 'Day(s)') \
-            .replace('day', 'Day(s)') \
-            .replace('hours', 'Hour(s)') \
-            .replace('hour', 'Hour(s)') \
-            .replace('n/a', 'N/A')
+    for age_variation, age_pattern in to_replace:
+        age.replace(age_variation, age_pattern)
 
-    return format(age)
+    return age
